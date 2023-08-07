@@ -1,0 +1,59 @@
+{
+  "name": "wasm-import",
+  "version": "0.1.0",
+  "author": "Timur Shemsedinov <timur.shemsedinov@gmail.com>",
+  "description": "WASM Loader for Node.js and Web",
+  "license": "MIT",
+  "keywords": [
+    "wasm",
+    "wasi",
+    "WebAssembly",
+    "require",
+    "import",
+    "loader"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tshemsedinov/wasm-import"
+  },
+  "bugs": {
+    "url": "https://github.com/tshemsedinov/wasm-import/issues",
+    "email": "timur.shemsedinov@gmail.com"
+  },
+  "homepage": "https://metarhia.com",
+  "funding": {
+    "type": "patreon",
+    "url": "https://www.patreon.com/tshemsedinov"
+  },
+  "main": "loader.js",
+  "types": "loader.d.ts",
+  "browser": {
+    "./loader.js": "./dist/loader.js"
+  },
+  "files": [
+    "dist/",
+    "lib/",
+    "loader.d.ts"
+  ],
+  "readmeFilename": "README.md",
+  "scripts": {
+    "test": "npm run lint && npm run types && metatests test/",
+    "types": "tsc -p tsconfig.json",
+    "lint": "eslint . && prettier -c \"**/*.js\" \"**/*.json\" \"**/*.md\" \"**/*.ts\"",
+    "fmt": "prettier --write \"**/*.js\" \"**/*.json\" \"**/*.md\" \"**/*.ts\""
+  },
+  "engines": {
+    "node": "16 || 18 || 19 || 20"
+  },
+  "devDependencies": {
+    "@types/node": "^20.4.3",
+    "eslint": "^8.45.0",
+    "eslint-config-metarhia": "^8.2.1",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-prettier": "^5.0.0",
+    "metatests": "^0.8.2",
+    "prettier": "^3.0.0",
+    "typescript": "^5.1.6"
+  }
+}
