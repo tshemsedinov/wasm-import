@@ -6,6 +6,21 @@
 [![npm downloads/month](https://img.shields.io/npm/dm/wasm-import.svg)](https://www.npmjs.com/package/wasm-import)
 [![npm downloads](https://img.shields.io/npm/dt/wasm-import.svg)](https://www.npmjs.com/package/wasm-import)
 
+```
+npm i wasm-import
+```
+
+See MDN docs how to pass callbacks to wasm via `importObject`:
+https://developer.mozilla.org/en-US/docs/WebAssembly/JavaScript_interface/Instance
+
+```js
+load(
+  fileName: string, // File name or URL
+  moduleName: string, // import key name in `importObject`
+  callbacks: Array<Function> // Array of callbacks to be imported im wasm
+): Promise<object>;
+```
+
 ## Example for Node.js
 
 ```js
@@ -15,9 +30,27 @@ const callback = (res) => {
   console.log({ res });
 };
 
-const example = await load('./example.wasm', 'wbg', [callback]);
+(async () => {
+  const example = await load('./example.wasm', 'wbg', [callback]);
+  console.log({ sum });
+  example.instance.exports.add_callback(3, 7);
+})();
+```
 
-example.instance.exports.addCallback(3, 7);
+## Example for Web
+
+```js
+import { load } from 'wasm-import';
+
+const callback = (res) => {
+  console.log({ res });
+};
+
+const example = await load('./examples.wasm', 'wbg', [callback]);
+
+const sum = example.instance.exports.add(3, 7);
+console.log({ sum });
+example.instance.exports.add_callback(3, 7);
 ```
 
 ## License & Contributors
