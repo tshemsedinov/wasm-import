@@ -8,7 +8,7 @@ const metatests = require('metatests');
 global.fetch = global.fetch || require('undici').fetch;
 
 const CWD = process.cwd();
-const DIST = path.join(CWD, './dist/loader.mjs');
+const DIST = 'file://' + path.join(CWD, './dist/loader.mjs');
 const BASE = 'http://127.0.0.1:8000/examples/';
 
 const PORT = 8000;
