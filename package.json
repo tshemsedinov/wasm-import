@@ -28,7 +28,7 @@
   "main": "loader.js",
   "types": "loader.d.ts",
   "browser": {
-    "./loader.js": "./dist/loader.js"
+    "./loader.js": "./dist/loader.mjs"
   },
   "files": [
     "dist/",
