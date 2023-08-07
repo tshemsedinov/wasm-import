@@ -7,7 +7,7 @@ const timers = require('node:timers/promises');
 const metatests = require('metatests');
 
 const CWD = process.cwd();
-const DIST = path.join(CWD, './dist/loader.js');
+const DIST = path.join(CWD, './dist/loader.mjs');
 const BASE = 'http://127.0.0.1:8000/examples/';
 
 const PORT = 8000;
