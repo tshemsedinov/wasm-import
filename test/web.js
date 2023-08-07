@@ -5,6 +5,7 @@ const http = require('node:http');
 const path = require('node:path');
 const timers = require('node:timers/promises');
 const metatests = require('metatests');
+global.fetch = global.fetch || require('undici').fetch;
 
 const CWD = process.cwd();
 const DIST = path.join(CWD, './dist/loader.mjs');
