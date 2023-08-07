@@ -5,7 +5,7 @@ const { load } = require('..');
 
 const PATH = './test/examples/';
 
-metatests.test('Rust WASM: wasm-pack', async (test) => {
+metatests.test('Rust WASM (node): wasm-pack', async (test) => {
   const callback = (res) => {
     test.strictEqual(res, 10);
   };
@@ -21,7 +21,7 @@ metatests.test('Rust WASM: wasm-pack', async (test) => {
   test.end();
 });
 
-metatests.test('WAT WASM: wabt/wat2wasm', async (test) => {
+metatests.test('WAT WASM (node): wabt/wat2wasm', async (test) => {
   const callback = (res) => {
     test.strictEqual(res, 10);
   };
@@ -37,7 +37,7 @@ metatests.test('WAT WASM: wabt/wat2wasm', async (test) => {
   test.end();
 });
 
-metatests.test('AssemblyScript WASM', async (test) => {
+metatests.test('AssemblyScript WASM (node)', async (test) => {
   const callback = (res) => {
     test.strictEqual(res, 10);
   };
