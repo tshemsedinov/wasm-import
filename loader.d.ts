@@ -7,5 +7,5 @@ export function load(
 export function prepareWasmImports(
   byteCode: WebAssembly.Module,
   moduleName: string,
-  expectedEntites: Array<Function>,
+  entitiesToInject: Array<Function>,
 ): object;
