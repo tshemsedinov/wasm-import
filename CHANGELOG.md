@@ -2,6 +2,8 @@
 
 ## [Unreleased][unreleased]
 
+- Avoid compiling WASM module twice in 'load' function
+
 ## [0.2.0][] - 2023-08-07
 
 - Loader for web
