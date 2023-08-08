@@ -2,8 +2,8 @@
 
 ## [Unreleased][unreleased]
 
-- Compile WASM module once in 'loader'
-- Split 'prepareWasmImports' utility out of 'loader'
+- Compile WASM module once in 'load'
+- Split 'prepareWasmImports' utility out of 'load'
 
 ## [0.2.0][] - 2023-08-07
 
