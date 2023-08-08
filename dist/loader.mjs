@@ -7,17 +7,12 @@ const prepareWasmImports = (byteCode, moduleName, callbacksToInject) => {
   return { [moduleName]: imports };
 };
 
-const linkWasmInstance = async (wasmCompiled, moduleName, callbacks) => {
-  const wasmImports = prepareWasmImports(wasmCompiled, moduleName, callbacks);
-  const instance = await WebAssembly.instantiate(wasmCompiled, wasmImports);
-  return instance;
-};
-
 const load = async (fileName, moduleName, callbacks) => {
   const response = await fetch(fileName);
   const wasmBuffer = await response.arrayBuffer();
   const wasmCompiled = await WebAssembly.compile(wasmBuffer);
-  const instance = await linkWasmInstance(wasmCompiled, moduleName, callbacks);
+  const wasmImports = prepareWasmImports(wasmCompiled, moduleName, callbacks);
+  const instance = await WebAssembly.instantiate(wasmCompiled, wasmImports);
   return { instance, module: wasmCompiled };
 };
 
