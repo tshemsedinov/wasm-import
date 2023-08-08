@@ -1,5 +1,11 @@
 export function load(
   fileName: string,
   moduleName: string,
-  callbacks: Array<Function>,
+  imports: Array<Function>,
 ): Promise<object>;
+
+export function prepareWasmImports(
+  byteCode: WebAssembly.Module,
+  moduleName: string,
+  expectedEntites: Array<Function>,
+): object;
