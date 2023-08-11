@@ -1,0 +1,12 @@
+[package]
+name = "example"
+version = "0.1.0"
+authors = ["Timur Shemsedinov <timur.shemsedinov@gmail.com>"]
+edition = "2021"
+repository = "https://github.com/HowProgrammingWorks/WebAssembly"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+wasm-bindgen = "0.2"
