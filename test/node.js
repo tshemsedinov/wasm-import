@@ -11,12 +11,12 @@ metatests.test('Rust WASM (node): wasm-pack', async (test) => {
   };
 
   const fileName = PATH + 'rust.wasm';
-  const example = await load(fileName, 'wbg', [callback]);
+  const example = await load(fileName, 'example', [callback]);
 
-  const sum = example.instance.exports.add(3, 7);
-  test.strictEqual(sum, 10);
+  const res = example.instance.exports.sum(3, 7);
+  test.strictEqual(res, 10);
 
-  example.instance.exports.add_callback(3, 7);
+  example.instance.exports.add(3, 7);
 
   test.end();
 });
@@ -27,12 +27,12 @@ metatests.test('WAT WASM (node): wabt/wat2wasm', async (test) => {
   };
 
   const fileName = PATH + 'wat.wasm';
-  const example = await load(fileName, 'imports', [callback]);
+  const example = await load(fileName, 'example', [callback]);
 
-  const sum = example.instance.exports.add(3, 7);
-  test.strictEqual(sum, 10);
+  const res = example.instance.exports.sum(3, 7);
+  test.strictEqual(res, 10);
 
-  example.instance.exports.addCallback(3, 7);
+  example.instance.exports.add(3, 7);
 
   test.end();
 });
@@ -42,13 +42,13 @@ metatests.test('AssemblyScript WASM (node)', async (test) => {
     test.strictEqual(res, 10);
   };
 
-  const fileName = PATH + 'assemblyscript.wasm';
+  const fileName = PATH + 'as.wasm';
   const example = await load(fileName, 'example', [callback]);
 
-  const sum = example.instance.exports.add(3, 7);
-  test.strictEqual(sum, 10);
+  const res = example.instance.exports.sum(3, 7);
+  test.strictEqual(res, 10);
 
-  example.instance.exports.addCallback(3, 7);
+  example.instance.exports.add(3, 7);
 
   test.end();
 });
