@@ -35,7 +35,7 @@ metatests.test('Rust WASM (web): wasm-pack', async (test) => {
   };
 
   const fileName = BASE + 'rust.wasm';
-  const example = await load(fileName, 'example', [callback]);
+  const example = await load(fileName, 'example', [callback, callback]);
 
   const res = example.instance.exports.sum(3, 7);
   test.strictEqual(res, 10);
@@ -54,7 +54,7 @@ metatests.test('WAT WASM (web): wabt/wat2wasm', async (test) => {
   };
 
   const fileName = BASE + 'wat.wasm';
-  const example = await load(fileName, 'example', [callback]);
+  const example = await load(fileName, 'example', [callback, callback]);
 
   const res = example.instance.exports.sum(3, 7);
   test.strictEqual(res, 10);
@@ -73,7 +73,7 @@ metatests.test('AssemblyScript WASM (web)', async (test) => {
   };
 
   const fileName = BASE + 'as.wasm';
-  const example = await load(fileName, 'example', [callback]);
+  const example = await load(fileName, 'example', [callback, callback]);
 
   const res = example.instance.exports.sum(3, 7);
   test.strictEqual(res, 10);
@@ -92,7 +92,7 @@ metatests.test('C++ WASM (web)', async (test) => {
   };
 
   const fileName = BASE + 'cpp.wasm';
-  const example = await load(fileName, 'env', [callback]);
+  const example = await load(fileName, 'env', [callback, callback]);
 
   const res = example.instance.exports.sum(3, 7);
   test.strictEqual(res, 10);

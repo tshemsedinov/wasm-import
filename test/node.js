@@ -11,7 +11,7 @@ metatests.test('Rust WASM (node): wasm-pack', async (test) => {
   };
 
   const fileName = PATH + 'rust.wasm';
-  const example = await load(fileName, 'example', [callback]);
+  const example = await load(fileName, 'example', [callback, callback]);
 
   const res = example.instance.exports.sum(3, 7);
   test.strictEqual(res, 10);
@@ -27,7 +27,7 @@ metatests.test('WAT WASM (node): wabt/wat2wasm', async (test) => {
   };
 
   const fileName = PATH + 'wat.wasm';
-  const example = await load(fileName, 'example', [callback]);
+  const example = await load(fileName, 'example', [callback, callback]);
 
   const res = example.instance.exports.sum(3, 7);
   test.strictEqual(res, 10);
@@ -43,7 +43,7 @@ metatests.test('AssemblyScript WASM (node)', async (test) => {
   };
 
   const fileName = PATH + 'as.wasm';
-  const example = await load(fileName, 'example', [callback]);
+  const example = await load(fileName, 'example', [callback, callback]);
 
   const res = example.instance.exports.sum(3, 7);
   test.strictEqual(res, 10);
@@ -59,7 +59,7 @@ metatests.test('C++ WASM (node)', async (test) => {
   };
 
   const fileName = PATH + 'cpp.wasm';
-  const example = await load(fileName, 'env', [callback]);
+  const example = await load(fileName, 'env', [callback, callback]);
 
   const res = example.instance.exports.sum(3, 7);
   test.strictEqual(res, 10);
