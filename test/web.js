@@ -82,3 +82,22 @@ metatests.test('AssemblyScript WASM (web)', async (test) => {
 
   test.end();
 });
+
+metatests.test('C++ WASM (web)', async (test) => {
+  const { load } = await import(DIST);
+  await timers.setTimeout(100);
+
+  const callback = (res) => {
+    test.strictEqual(res, 10);
+  };
+
+  const fileName = BASE + 'cpp.wasm';
+  const example = await load(fileName, 'env', [callback]);
+
+  const res = example.instance.exports.sum(3, 7);
+  test.strictEqual(res, 10);
+
+  example.instance.exports.add(3, 7);
+
+  test.end();
+});

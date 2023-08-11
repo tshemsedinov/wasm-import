@@ -52,3 +52,19 @@ metatests.test('AssemblyScript WASM (node)', async (test) => {
 
   test.end();
 });
+
+metatests.test('C++ WASM (node)', async (test) => {
+  const callback = (res) => {
+    test.strictEqual(res, 10);
+  };
+
+  const fileName = PATH + 'cpp.wasm';
+  const example = await load(fileName, 'env', [callback]);
+
+  const res = example.instance.exports.sum(3, 7);
+  test.strictEqual(res, 10);
+
+  example.instance.exports.add(3, 7);
+
+  test.end();
+});
