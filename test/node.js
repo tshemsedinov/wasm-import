@@ -28,6 +28,13 @@ metatests.test('Rust WASM (node): wasm-pack', async (test) => {
     test.strictEqual(res, 10);
   });
 
+  const strictEq = (wanted) => (got) => test.strictEqual(got, wanted);
+  example.add(10, 5, strictEq(15));
+  example.add(-2, 7, strictEq(5));
+  example.add(65535, 1, strictEq(2 ** 16));
+  example.sub(10, 10, strictEq(0));
+  example.sub(23, 1000_000, strictEq(-999_977));
+
   test.end();
 });
 
@@ -53,6 +60,13 @@ metatests.test('WAT WASM (node): wabt/wat2wasm', async (test) => {
   example.instance.exports.sub(20, 10, (res) => {
     test.strictEqual(res, 10);
   });
+
+  const strictEq = (wanted) => (got) => test.strictEqual(got, wanted);
+  example.add(10, 5, strictEq(15));
+  example.add(-2, 7, strictEq(5));
+  example.add(65535, 1, strictEq(2 ** 16));
+  example.sub(10, 10, strictEq(0));
+  example.sub(23, 1000_000, strictEq(-999_977));
 
   test.end();
 });
@@ -80,6 +94,13 @@ metatests.test('AssemblyScript WASM (node)', async (test) => {
     test.strictEqual(res, 10);
   });
 
+  const strictEq = (wanted) => (got) => test.strictEqual(got, wanted);
+  example.add(10, 5, strictEq(15));
+  example.add(-2, 7, strictEq(5));
+  example.add(65535, 1, strictEq(2 ** 16));
+  example.sub(10, 10, strictEq(0));
+  example.sub(23, 1000_000, strictEq(-999_977));
+
   test.end();
 });
 
@@ -105,6 +126,13 @@ metatests.test('C++ WASM (node)', async (test) => {
   example.instance.exports.sub(20, 10, (res) => {
     test.strictEqual(res, 10);
   });
+
+  const strictEq = (wanted) => (got) => test.strictEqual(got, wanted);
+  example.add(10, 5, strictEq(15));
+  example.add(-2, 7, strictEq(5));
+  example.add(65535, 1, strictEq(2 ** 16));
+  example.sub(10, 10, strictEq(0));
+  example.sub(23, 1000_000, strictEq(-999_977));
 
   test.end();
 });
