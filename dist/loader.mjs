@@ -2,12 +2,11 @@ const CALLBACK_POSTFIX_LEN = 'Callback'.length;
 
 const buildModule = (exports, compiled) => {
   const module = { instance: { exports }, module: compiled };
-  for (const propName of Object.getOwnPropertyNames(exports)) {
-    if (['instance', 'module'].includes(propName)) continue;
-    const descriptor = Object.getOwnPropertyDescriptor(exports, propName);
-    Object.defineProperty(module, propName, descriptor);
-  }
-  return module;
+  return new Proxy(module, {
+    get(module, prop) {
+      return prop in module ? module[prop] : exports[prop];
+    },
+  });
 };
 
 class WasmLoader {
