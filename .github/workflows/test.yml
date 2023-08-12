@@ -79,7 +79,7 @@ jobs:
           Remove-Item -Path wasm_binary--rust -Recurse
 
       - name: Use Node.js ${{ matrix.node }}
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
       - uses: actions/cache@v3
