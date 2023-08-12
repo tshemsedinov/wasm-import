@@ -16,41 +16,21 @@ https://developer.mozilla.org/en-US/docs/WebAssembly/JavaScript_interface/Instan
 ```js
 load(
   fileName: string, // File name or URL
-  moduleName: string, // import key name in `importObject`
-  callbacks: Array<Function> // Array of callbacks to be imported im wasm
+  importObject?: object // See MDN docs
 ): Promise<object>;
 ```
 
-## Example for Node.js
-
-```js
-const { load } = require('wasm-import');
-
-const callback = (res) => {
-  console.log({ res });
-};
-
-(async () => {
-  const example = await load('./example.wasm', 'wbg', [callback]);
-  console.log({ sum });
-  example.instance.exports.add_callback(3, 7);
-})();
-```
-
-## Example for Web
+## Example
 
 ```js
 import { load } from 'wasm-import';
+// Alternative: const { load } = require('wasm-import');
 
-const callback = (res) => {
-  console.log({ res });
-};
+const example = await load('example.wasm');
 
-const example = await load('./examples.wasm', 'wbg', [callback]);
-
-const sum = example.instance.exports.add(3, 7);
-console.log({ sum });
-example.instance.exports.add_callback(3, 7);
+example.instance.exports.add(3, 7, (result) => {
+  console.log({ result, expected: 10 });
+});
 ```
 
 ## License & Contributors
