@@ -38,9 +38,38 @@ jobs:
           name: artifacts--rust
           path: ${{ env.WASM_SOURCES_PATH }}/Rust/target/wasm32-unknown-unknown/release/${{ env.WASM_MODULE_NAME }}.wasm
 
+  build_wasm_artifacts--cpp:
+    runs-on: ubuntu-latest
+    env:
+      EM_VERSION: 3.1.44
+      EM_CACHE_FOLDER: 'emsdk-cache'
+    steps:
+      - name: Get 'emscripten-sdk' from cache ...
+        uses: actions/cache@v3
+        id: cache-emscripten-sdk
+        with:
+          path: ${{env.EM_CACHE_FOLDER}}
+          key: ${{ runner.os }}-emscripten-sdk-v${{ env.EM_VERSION }}
+
+      - name: ... or install and cache 'emscripten-sdk'
+        uses: mymindstorm/setup-emsdk@v12
+        with:
+          version: ${{ env.EM_VERSION }}
+          actions-cache-folder: ${{ env.EM_CACHE_FOLDER }}
+
+      - uses: actions/checkout@v3
+      - run: |
+          cd ${{ env.WASM_SOURCES_PATH }}/C++
+          em++ -std=c++11 ${{ env.WASM_MODULE_NAME }}.cpp  -Os -s WASM=1 -s SIDE_MODULE=1 -o ${{ env.WASM_MODULE_NAME }}.wasm
+      - uses: actions/upload-artifact@v3
+        with:
+          name: artifacts--cpp
+          path: ${{ env.WASM_SOURCES_PATH }}/C++/${{ env.WASM_MODULE_NAME }}.wasm
+
   lint_and_test:
     needs:
       - build_wasm_artifacts--rust
+      - build_wasm_artifacts--cpp
 
     runs-on: ${{ matrix.os }}
 
@@ -69,12 +98,20 @@ jobs:
           mv artifacts--rust/${{ env.WASM_MODULE_NAME }}.wasm ${{ env.WASM_BINARIES_PATH}}/rust.wasm
           rm -r artifacts--rust
 
+          rm ${{ env.WASM_BINARIES_PATH}}/cpp.wasm
+          mv artifacts--cpp/${{ env.WASM_MODULE_NAME }}.wasm ${{ env.WASM_BINARIES_PATH}}/cpp.wasm
+          rm -r artifacts--cpp
+
       - name: Move binaries to proper directory (Windows)
         if: ${{ matrix.os == 'windows-latest' }}
         run: |
           Remove-Item -Path ${{ env.WASM_BINARIES_PATH_WIN }}\rust.wasm
           Move-Item -Path artifacts--rust\${{ env.WASM_MODULE_NAME }}.wasm -Destination ${{ env.WASM_BINARIES_PATH_WIN }}\rust.wasm
           Remove-Item -Path artifacts--rust -Recurse
+
+          Remove-Item -Path ${{ env.WASM_BINARIES_PATH_WIN }}\cpp.wasm
+          Move-Item -Path artifacts--cpp\${{ env.WASM_MODULE_NAME }}.wasm -Destination ${{ env.WASM_BINARIES_PATH_WIN }}\cpp.wasm
+          Remove-Item -Path artifacts--cpp -Recurse
 
       - name: Use Node.js ${{ matrix.node }}
         uses: actions/setup-node@v3
