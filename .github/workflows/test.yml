@@ -13,7 +13,7 @@ env:
   WASM_MODULE_NAME: 'example'
 
 jobs:
-  build_wasm_binary--rust:
+  build_wasm_artifacts--rust:
     runs-on: ubuntu-latest
     steps:
       - name: Install rust toolchain
@@ -39,12 +39,12 @@ jobs:
           wasm-pack build --target nodejs
       - uses: actions/upload-artifact@v3
         with:
-          name: wasm_binary--rust
+          name: artifacts--rust
           path: ${{ env.WASM_SOURCES_PATH }}/Rust/target/wasm32-unknown-unknown/release/${{ env.WASM_MODULE_NAME }}.wasm
 
   lint_and_test:
     needs:
-      - build_wasm_binary--rust
+      - build_wasm_artifacts--rust
 
     runs-on: ${{ matrix.os }}
 
@@ -69,14 +69,16 @@ jobs:
       - name: Move binaries to proper directory
         if: ${{ matrix.os != 'windows-latest' }}
         run: |
-          mv wasm_binary--rust/${{ env.WASM_MODULE_NAME }}.wasm ${{ env.WASM_BINARIES_PATH}}
-          rm -r wasm_binary--rust
+          rm ${{ env.WASM_BINARIES_PATH}}/rust.wasm
+          mv artifacts--rust/${{ env.WASM_MODULE_NAME }}.wasm ${{ env.WASM_BINARIES_PATH}}/rust.wasm
+          rm -r artifacts--rust
 
       - name: Move binaries to proper directory (Windows)
         if: ${{ matrix.os == 'windows-latest' }}
         run: |
-          Move-Item -Path wasm_binary--rust\${{ env.WASM_MODULE_NAME }}.wasm -Destination ${{ env.WASM_BINARIES_PATH_WIN }} -Force
-          Remove-Item -Path wasm_binary--rust -Recurse
+          Remove-Item -Path ${{ env.WASM_BINARIES_PATH_WIN }}\rust.wasm
+          Move-Item -Path artifacts--rust\${{ env.WASM_MODULE_NAME }}.wasm -Destination ${{ env.WASM_BINARIES_PATH_WIN }}\rust.wasm
+          Remove-Item -Path artifacts--rust -Recurse
 
       - name: Use Node.js ${{ matrix.node }}
         uses: actions/setup-node@v3
