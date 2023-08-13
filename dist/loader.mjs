@@ -14,9 +14,9 @@ const prepareImports = (byteCode) => {
     calls.set(exportedFnName, []);
     module[entry.name] = (...args) => {
       const callbacks = calls.get(exportedFnName);
-      if (!callbacks) return null;
+      if (!callbacks) return;
       const callback = callbacks.shift();
-      return callback ? callback(...args) : null;
+      if (callback) callback(...args);
     };
   }
   return expected;
