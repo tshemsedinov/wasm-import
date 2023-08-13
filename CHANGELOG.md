@@ -2,6 +2,8 @@
 
 ## [Unreleased][unreleased]
 
+- Support promises
+
 ## [0.3.0][] - 2023-08-12
 
 - Support in-place callbacks
