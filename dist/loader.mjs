@@ -10,10 +10,8 @@ const prepareImports = (byteCode) => {
     if (entry.kind !== 'function') continue;
     let module = expected[entry.module];
     if (!module) module = expected[entry.module] = {};
-
     const exportedFnName = fnNameFromCallbackName(entry.name);
     calls.set(exportedFnName, []);
-
     module[entry.name] = (...args) => {
       const callbacks = calls.get(exportedFnName);
       if (!callbacks) return null;
