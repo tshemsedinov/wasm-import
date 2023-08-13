@@ -2,7 +2,6 @@
 
 ## [Unreleased][unreleased]
 
-- Incapsulate methods and callback storage in 'WasmLoader' class
 - Shortcut 'module.instance.exports.method' to 'module.method' for convenience
 
 ## [0.3.0][] - 2023-08-12
