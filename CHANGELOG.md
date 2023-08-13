@@ -2,6 +2,8 @@
 
 ## [Unreleased][unreleased]
 
+- Incapsulate methods and callback storage in 'WasmLoader' class
+
 ## [0.3.0][] - 2023-08-12
 
 - Support in-place callbacks
