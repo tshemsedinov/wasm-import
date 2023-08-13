@@ -45,17 +45,27 @@ jobs:
   build_wasm_artifacts--cpp:
     runs-on: ubuntu-latest
     env:
-      EM_VERSION: 3.1.44
-      EM_CACHE_FOLDER: 'emsdk-cache'
+      EM_VERSION: latest
     steps:
-      - name: Procure 'emscripten-sdk'
-        uses: mymindstorm/setup-emsdk@v12
-        with:
-          version: ${{ env.EM_VERSION }}
-          actions-cache-folder: ${{ env.EM_CACHE_FOLDER }}
-
       - uses: actions/checkout@v3
+
+      - name: Get 'emscripten-sdk' from cache ...
+        uses: actions/cache@v3
+        id: cache-emscripten-sdk
+        with:
+          path: emsdk/
+          key: emscripten-sdk-${{ env.EM_VERSION }}${{ runner.os }}-wasm-pack
+
+      - name: ... or install and cache 'emscripten-sdk'
+        if: ${{ steps.cache-emscripten-sdk.outputs.cache-hit != 'true' }}
+        run: |
+          git clone https://github.com/emscripten-core/emsdk.git
+          cd emsdk
+          ./emsdk install ${{ env.EM_VERSION }}
+          ./emsdk activate ${{ env.EM_VERSION }}
+  
       - run: |
+          source ./emsdk/emsdk_env.sh
           cd ${{ env.WASM_SOURCES_PATH }}/C++
           em++ -std=c++11 ${{ env.WASM_MODULE_NAME }}.cpp  -Os -s WASM=1 -s SIDE_MODULE=1 -o ${{ env.WASM_MODULE_NAME }}.wasm
 
