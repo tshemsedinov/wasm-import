@@ -1,6 +1,15 @@
 const CALLBACK_LEN = 'Callback'.length;
 const calls = new Map();
 
+const buildModule = (exports, compiled) => {
+  const module = { instance: { exports }, module: compiled };
+  return new Proxy(module, {
+    get(module, prop) {
+      return prop in module ? module[prop] : exports[prop];
+    },
+  });
+};
+
 const prepareImports = (byteCode) => {
   const imports = WebAssembly.Module.imports(byteCode);
   const expected = {};
@@ -44,7 +53,7 @@ const load = async (fileName, importObject = {}) => {
       return fn(...args);
     };
   }
-  return { instance: { exports }, module: compiled };
+  return buildModule(exports, compiled);
 };
 
 export { load };

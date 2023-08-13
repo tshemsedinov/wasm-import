@@ -2,6 +2,8 @@
 
 ## [Unreleased][unreleased]
 
+- Shortcut 'module.instance.exports.method' to 'module.method' for convenience
+
 ## [0.3.0][] - 2023-08-12
 
 - Support in-place callbacks
