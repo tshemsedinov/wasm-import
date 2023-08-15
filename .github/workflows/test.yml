@@ -122,7 +122,7 @@ jobs:
 
       - run: |
           cd ${{ env.WASM_SOURCES_PATH }}/WAT
-          ${{ env.GITHUB_WORKSPACE }}/wabt/bin/wat2wasm ${{ env.WASM_MODULE_NAME }}.wat -o ${{ env.WASM_MODULE_NAME }}.wasm
+          $GITHUB_WORKSPACE/wabt/bin/wat2wasm ${{ env.WASM_MODULE_NAME }}.wat -o ${{ env.WASM_MODULE_NAME }}.wasm
 
       - uses: actions/upload-artifact@v3
         with:
