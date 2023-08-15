@@ -2,7 +2,7 @@
 
 ## [Unreleased][unreleased]
 
-Build wasm for Rust, C++, AssemblyScript in CI before tests
+Build wasm for Rust, C++, AssemblyScript, WAT in CI before tests
 
 ## [0.3.0][] - 2023-08-12
 

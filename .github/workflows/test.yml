@@ -1,10 +1,6 @@
 name: Testing CI
 
-on:
-  pull_request:
-  push:
-    paths:
-      - .github/workflows/**/*.yml
+on: pull_request
 
 env:
   WASM_SOURCES_PATH: './test/examples'
