@@ -1,6 +1,10 @@
 name: Testing CI
 
-on: pull_request
+on:
+  pull_request:
+  push:
+    paths:
+      - .github/workflows/**/*.yml
 
 env:
   WASM_SOURCES_PATH: './test/examples'
@@ -97,11 +101,40 @@ jobs:
           name: artifacts--as
           path: ${{ env.WASM_SOURCES_PATH }}/AssemblyScript/${{ env.WASM_MODULE_NAME }}.wasm
 
+  build_wasm_artifacts--wat:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Get 'wabt' tools from cache ...
+        uses: actions/cache@v3
+        id: cache-wabt-tools
+        with:
+          path: wabt/
+          key: wabt-${{ runner.os }}
+
+      - name: ... or install and cache 'wabt' tools
+        if: ${{ steps.cache-wabt-tools.outputs.cache-hit != 'true' }}
+        run: |
+          git clone --recursive https://github.com/WebAssembly/wabt
+          mkdir wabt/build && cd wabt/build
+          cmake .. && cmake --build .
+
+      - run: |
+          cd ${{ env.WASM_SOURCES_PATH }}/WAT
+          $GITHUB_WORKSPACE/wabt/bin/wat2wasm ${{ env.WASM_MODULE_NAME }}.wat -o ${{ env.WASM_MODULE_NAME }}.wasm
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: artifacts--wat
+          path: ${{ env.WASM_SOURCES_PATH }}/WAT/${{ env.WASM_MODULE_NAME }}.wasm
+
   lint_and_test:
     needs:
       - build_wasm_artifacts--rust
       - build_wasm_artifacts--cpp
       - build_wasm_artifacts--as
+      - build_wasm_artifacts--wat
 
     runs-on: ${{ matrix.os }}
 
@@ -123,35 +156,25 @@ jobs:
       - name: Download WASM binaries
         uses: actions/download-artifact@v3
 
-      - name: Move binaries to proper directory
+      - name: Swap commited binaries with CI binaries
         if: ${{ matrix.os != 'windows-latest' }}
         run: |
-          rm ${{ env.WASM_BINARIES_PATH}}/rust.wasm
+          rm ${{ env.WASM_BINARIES_PATH}}/*.wasm
           mv artifacts--rust/${{ env.WASM_MODULE_NAME }}.wasm ${{ env.WASM_BINARIES_PATH}}/rust.wasm
-          rm -r artifacts--rust
-
-          rm ${{ env.WASM_BINARIES_PATH}}/cpp.wasm
           mv artifacts--cpp/${{ env.WASM_MODULE_NAME }}.wasm ${{ env.WASM_BINARIES_PATH}}/cpp.wasm
-          rm -r artifacts--cpp
-
-          rm ${{ env.WASM_BINARIES_PATH}}/as.wasm
           mv artifacts--as/${{ env.WASM_MODULE_NAME }}.wasm ${{ env.WASM_BINARIES_PATH}}/as.wasm
-          rm -r artifacts--as
+          mv artifacts--wat/${{ env.WASM_MODULE_NAME }}.wasm ${{ env.WASM_BINARIES_PATH}}/wat.wasm
+          rm -r artifacts--*
 
-      - name: Move binaries to proper directory (Windows)
+      - name: Swap commited binaries with CI binaries (Windows)
         if: ${{ matrix.os == 'windows-latest' }}
         run: |
-          Remove-Item -Path ${{ env.WASM_BINARIES_PATH_WIN }}\rust.wasm
-          Move-Item -Path artifacts--rust\${{ env.WASM_MODULE_NAME }}.wasm -Destination ${{ env.WASM_BINARIES_PATH_WIN }}\rust.wasm
-          Remove-Item -Path artifacts--rust -Recurse
-
-          Remove-Item -Path ${{ env.WASM_BINARIES_PATH_WIN }}\cpp.wasm
+          Remove-Item -Path ${{ env.WASM_BINARIES_PATH_WIN }}\*.wasm
+          Move-Item -Path artifacts--rust\${{ env.WASM_MODULE_NAME }}.wasm -Destination ${{ env.WASM_BINARIES_PATH_WIN }}\rust.wasm 
           Move-Item -Path artifacts--cpp\${{ env.WASM_MODULE_NAME }}.wasm -Destination ${{ env.WASM_BINARIES_PATH_WIN }}\cpp.wasm
-          Remove-Item -Path artifacts--cpp -Recurse
-
-          Remove-Item -Path ${{ env.WASM_BINARIES_PATH_WIN }}\as.wasm
           Move-Item -Path artifacts--as\${{ env.WASM_MODULE_NAME }}.wasm -Destination ${{ env.WASM_BINARIES_PATH_WIN }}\as.wasm
-          Remove-Item -Path artifacts--as -Recurse
+          Move-Item -Path artifacts--wat\${{ env.WASM_MODULE_NAME }}.wasm -Destination ${{ env.WASM_BINARIES_PATH_WIN }}\wat.wasm
+          Remove-Item -Path artifacts--* -Recurse
 
       - name: Use Node.js ${{ matrix.node }}
         uses: actions/setup-node@v3
