@@ -1,10 +1,11 @@
 const CALLBACK_LEN = 'Callback'.length;
 
 class Registry extends Map {
-  getOrSetDefault(key, fallback) {
+  getCallbacks(key) {
     if (this.has(key)) return this.get(key);
-    this.set(key, fallback);
-    return fallback;
+    const callbacks = [];
+    this.set(key, callbacks);
+    return callbacks;
   }
 }
 
@@ -44,7 +45,7 @@ const load = async (fileName, importObject = {}) => {
     }
     exports[name] = (...args) => {
       if (typeof args.at(-1) !== 'function') return fn(...args);
-      const callbacks = callbacksRegistry.getOrSetDefault(name, []);
+      const callbacks = callbacksRegistry.getCallbacks(name);
       callbacks.push(args.pop());
       return fn(...args);
     };
