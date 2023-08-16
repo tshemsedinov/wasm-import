@@ -1,5 +1,14 @@
 const CALLBACK_LEN = 'Callback'.length;
-const calls = new Map();
+
+class Registry extends Map {}
+
+Registry.prototype.getOrSetDefault = function (key, fallback) {
+  if (this.has(key)) return this.get(key);
+  this.set(key, fallback);
+  return fallback;
+};
+
+const callbacksRegistry = new Registry();
 
 const prepareImports = (byteCode) => {
   const imports = WebAssembly.Module.imports(byteCode);
@@ -10,7 +19,7 @@ const prepareImports = (byteCode) => {
     if (!module) module = expected[entry.module] = {};
     module[entry.name] = (...args) => {
       const name = entry.name.slice(0, -CALLBACK_LEN);
-      const callbacks = calls.get(name);
+      const callbacks = callbacksRegistry.get(name);
       if (!callbacks) return;
       const callback = callbacks.shift();
       if (!callback) return;
@@ -35,11 +44,7 @@ const load = async (fileName, importObject = {}) => {
     }
     exports[name] = (...args) => {
       if (typeof args.at(-1) !== 'function') return fn(...args);
-      let callbacks = calls.get(name);
-      if (!callbacks) {
-        callbacks = [];
-        calls.set(name, callbacks);
-      }
+      const callbacks = callbacksRegistry.getOrSetDefault(name, []);
       callbacks.push(args.pop());
       return fn(...args);
     };
