@@ -2,6 +2,8 @@
 
 ## [Unreleased][unreleased]
 
+- Registry class (extended Map) for callbacks;
+
 ## [0.3.0][] - 2023-08-12
 
 - Support in-place callbacks
