@@ -1,12 +1,12 @@
 const CALLBACK_LEN = 'Callback'.length;
 
-class Registry extends Map {}
-
-Registry.prototype.getOrSetDefault = function (key, fallback) {
-  if (this.has(key)) return this.get(key);
-  this.set(key, fallback);
-  return fallback;
-};
+class Registry extends Map {
+  getOrSetDefault(key, fallback) {
+    if (this.has(key)) return this.get(key);
+    this.set(key, fallback);
+    return fallback;
+  }
+}
 
 const callbacksRegistry = new Registry();
 
