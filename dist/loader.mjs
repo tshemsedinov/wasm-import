@@ -1,11 +1,16 @@
 const CALLBACK_LEN = 'Callback'.length;
 
 class Registry extends Map {
-  getCallbacks(key) {
-    if (this.has(key)) return this.get(key);
+  getCallbacks(name) {
+    if (this.has(name)) return this.get(name);
     const callbacks = [];
-    this.set(key, callbacks);
+    this.set(name, callbacks);
     return callbacks;
+  }
+
+  getNextCallback(name) {
+    const callbacks = this.get(name);
+    return (callbacks && callbacks.shift()) || null;
   }
 }
 
@@ -20,11 +25,7 @@ const prepareImports = (byteCode) => {
     if (!module) module = expected[entry.module] = {};
     module[entry.name] = (...args) => {
       const name = entry.name.slice(0, -CALLBACK_LEN);
-      const callbacks = callbacksRegistry.get(name);
-      if (!callbacks) return;
-      const callback = callbacks.shift();
-      if (!callback) return;
-      callback(...args);
+      callbacksRegistry.getNextCallback(name)?.(...args);
     };
   }
   return expected;
