@@ -185,24 +185,42 @@ metatests.test('Zig WASM (node)', async (test) => {
   const fileName = PATH + 'zig.wasm';
   const example = await load(fileName);
 
-  const res = example.instance.exports.sum(3, 7);
-  test.strictEqual(res, 10);
-
-  example.instance.exports.add(1, 1, (res) => {
-    test.strictEqual(res, 2);
-  });
-
-  example.instance.exports.add(2, 2, (res) => {
-    test.strictEqual(res, 4);
-  });
-
-  example.instance.exports.sub(10, 5, (res) => {
-    test.strictEqual(res, 5);
-  });
-
-  example.instance.exports.sub(20, 10, (res) => {
+  {
+    const res = example.instance.exports.sum(3, 7);
     test.strictEqual(res, 10);
-  });
+  }
+
+  {
+    example.instance.exports.add(1, 1, (res) => {
+      test.strictEqual(res, 2);
+    });
+    const res = await example.instance.exports.add(1, 1);
+    test.strictEqual(res, 2);
+  }
+
+  {
+    example.instance.exports.add(2, 2, (res) => {
+      test.strictEqual(res, 4);
+    });
+    const res = await example.instance.exports.add(2, 2);
+    test.strictEqual(res, 4);
+  }
+
+  {
+    example.instance.exports.sub(10, 5, (res) => {
+      test.strictEqual(res, 5);
+    });
+    const res = await example.instance.exports.sub(10, 5);
+    test.strictEqual(res, 5);
+  }
+
+  {
+    example.instance.exports.sub(20, 10, (res) => {
+      test.strictEqual(res, 10);
+    });
+    const res = await example.instance.exports.sub(20, 10);
+    test.strictEqual(res, 10);
+  }
 
   test.end();
 });
