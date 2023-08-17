@@ -2,6 +2,8 @@
 
 ## [Unreleased][unreleased]
 
+- Example and test for Zig
+
 ## [0.3.0][] - 2023-08-12
 
 - Support in-place callbacks
