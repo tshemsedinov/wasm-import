@@ -12,6 +12,8 @@ jobs:
   build_wasm_artifacts--rust:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
+
       - name: Install rust toolchain
         uses: actions-rs/toolchain@v1
         with:
@@ -29,10 +31,10 @@ jobs:
         if: ${{ steps.cache-wasm-pack.outputs.cache-hit != 'true' }}
         run: cargo install wasm-pack
 
-      - uses: actions/checkout@v3
       - run: |
           cd ${{ env.WASM_SOURCES_PATH }}/Rust
           wasm-pack build --target nodejs
+
       - uses: actions/upload-artifact@v3
         with:
           name: artifacts--rust
@@ -74,6 +76,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
       - name: Get AssemblyScript deps from cache ...
         id: cache-deps
         uses: actions/cache@v3
