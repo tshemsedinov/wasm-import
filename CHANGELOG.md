@@ -2,6 +2,7 @@
 
 ## [Unreleased][unreleased]
 
+- Example and test for Zig
 - Registry class (extended Map) for callbacks;
 
 ## [0.3.0][] - 2023-08-12
