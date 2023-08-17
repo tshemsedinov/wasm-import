@@ -213,3 +213,32 @@ metatests.test('C++ WASM (web)', async (test) => {
 
   test.end();
 });
+
+metatests.test('C++ WASM (web)', async (test) => {
+  const { load } = await import(DIST);
+  await timers.setTimeout(100);
+
+  const fileName = BASE + 'zig.wasm';
+  const example = await load(fileName);
+
+  const res = example.instance.exports.sum(3, 7);
+  test.strictEqual(res, 10);
+
+  example.instance.exports.add(1, 1, (res) => {
+    test.strictEqual(res, 2);
+  });
+
+  example.instance.exports.add(2, 2, (res) => {
+    test.strictEqual(res, 4);
+  });
+
+  example.instance.exports.sub(10, 5, (res) => {
+    test.strictEqual(res, 5);
+  });
+
+  example.instance.exports.sub(20, 10, (res) => {
+    test.strictEqual(res, 10);
+  });
+
+  test.end();
+});
