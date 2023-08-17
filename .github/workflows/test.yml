@@ -125,12 +125,45 @@ jobs:
           name: artifacts--wat
           path: ${{ env.WASM_SOURCES_PATH }}/WAT/${{ env.WASM_MODULE_NAME }}.wasm
 
+  build_wasm_artifacts--zig:
+    runs-on: ubuntu-latest
+    env:
+      ZIG_VERSION: 0.11.0
+      ZIG_FOR_OS: linux
+      ZIG_FOR_ARCH: x86_64
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Get Zig compiler from cache ...
+        uses: actions/cache@v3
+        id: cache-zig-compiler
+        with:
+          path: zig/
+          key: zig-v${{ env.ZIG_VERSION }}-${{ runner.os }}
+
+      - name: ... or download and cache Zig compiler
+        if: ${{ steps.cache-zig-compiler.outputs.cache-hit != 'true' }}
+        run: |
+          BUNDLE_NAME=zig-${{ env.ZIG_FOR_OS}}-${{ env.ZIG_FOR_ARCH }}-${{ env.ZIG_VERSION }}
+          wget https://ziglang.org/download/${{ env.ZIG_VERSION }}/$BUNDLE_NAME.tar.xz
+          tar -xf $BUNDLE_NAME.tar.xz && mv $BUNDLE_NAME zig && rm $BUNDLE_NAME.tar.xz
+
+      - run: |
+          cd ${{ env.WASM_SOURCES_PATH }}/Zig
+          $GITHUB_WORKSPACE/zig/zig build-lib ${{ env.WASM_MODULE_NAME }}.zig -target wasm32-freestanding -dynamic -rdynamic
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: artifacts--zig
+          path: ${{ env.WASM_SOURCES_PATH }}/Zig/${{ env.WASM_MODULE_NAME }}.wasm
+
   lint_and_test:
     needs:
       - build_wasm_artifacts--rust
       - build_wasm_artifacts--cpp
       - build_wasm_artifacts--as
       - build_wasm_artifacts--wat
+      - build_wasm_artifacts--zig
 
     runs-on: ${{ matrix.os }}
 
@@ -160,6 +193,7 @@ jobs:
           mv artifacts--cpp/${{ env.WASM_MODULE_NAME }}.wasm ${{ env.WASM_BINARIES_PATH}}/cpp.wasm
           mv artifacts--as/${{ env.WASM_MODULE_NAME }}.wasm ${{ env.WASM_BINARIES_PATH}}/as.wasm
           mv artifacts--wat/${{ env.WASM_MODULE_NAME }}.wasm ${{ env.WASM_BINARIES_PATH}}/wat.wasm
+          mv artifacts--zig/${{ env.WASM_MODULE_NAME }}.wasm ${{ env.WASM_BINARIES_PATH}}/zig.wasm
           rm -r artifacts--*
 
       - name: Swap commited binaries with CI binaries (Windows)
@@ -170,6 +204,7 @@ jobs:
           Move-Item -Path artifacts--cpp\${{ env.WASM_MODULE_NAME }}.wasm -Destination ${{ env.WASM_BINARIES_PATH_WIN }}\cpp.wasm
           Move-Item -Path artifacts--as\${{ env.WASM_MODULE_NAME }}.wasm -Destination ${{ env.WASM_BINARIES_PATH_WIN }}\as.wasm
           Move-Item -Path artifacts--wat\${{ env.WASM_MODULE_NAME }}.wasm -Destination ${{ env.WASM_BINARIES_PATH_WIN }}\wat.wasm
+          Move-Item -Path artifacts--zig\${{ env.WASM_MODULE_NAME }}.wasm -Destination ${{ env.WASM_BINARIES_PATH_WIN }}\zig.wasm
           Remove-Item -Path artifacts--* -Recurse
 
       - name: Use Node.js ${{ matrix.node }}

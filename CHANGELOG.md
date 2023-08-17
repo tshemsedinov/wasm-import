@@ -2,7 +2,8 @@
 
 ## [Unreleased][unreleased]
 
-Build wasm for Rust, C++, AssemblyScript, WAT in CI before tests
+- Example and test for Zig
+- Build wasm for all examples in CI before tests
 
 ## [0.3.0][] - 2023-08-12
 
