@@ -4,6 +4,7 @@
 
 - Example and test for Zig
 - Build wasm for all examples in CI before tests
+- Support promises
 
 ## [0.3.0][] - 2023-08-12
 
