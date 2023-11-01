@@ -34,11 +34,12 @@ jobs:
       - run: |
           cd ${{ env.WASM_SOURCES_PATH }}/Rust
           wasm-pack build --target nodejs
+          mv pkg/${{ env.WASM_MODULE_NAME }}_bg.wasm pkg/${{ env.WASM_MODULE_NAME }}.wasm
 
       - uses: actions/upload-artifact@v3
         with:
           name: artifacts--rust
-          path: ${{ env.WASM_SOURCES_PATH }}/Rust/target/wasm32-unknown-unknown/release/${{ env.WASM_MODULE_NAME }}.wasm
+          path: ${{ env.WASM_SOURCES_PATH }}/Rust/pkg/${{ env.WASM_MODULE_NAME }}.wasm
 
   build_wasm_artifacts--cpp:
     runs-on: ubuntu-latest
