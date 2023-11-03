@@ -2,16 +2,179 @@ name: Testing CI
 
 on: pull_request
 
+env:
+  WASM_SOURCES_PATH: './test/examples'
+  WASM_BINARIES_PATH: './test/examples'
+  WASM_BINARIES_PATH_WIN: '.\test\examples'
+  WASM_MODULE_NAME: 'example'
+
 jobs:
-  build:
+  build_wasm_artifacts--rust:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+
+      - name: Get 'wasm-pack' tool from cache ...
+        uses: actions/cache@v3
+        id: cache-wasm-pack
+        with:
+          path: ~/.cargo/bin/wasm-pack
+          key: ${{ runner.os }}-wasm-pack
+
+      - name: ... or install and cache 'wasm-pack' tool
+        if: ${{ steps.cache-wasm-pack.outputs.cache-hit != 'true' }}
+        run: cargo install wasm-pack
+
+      - run: |
+          cd ${{ env.WASM_SOURCES_PATH }}/Rust
+          wasm-pack build --target nodejs
+          mv pkg/${{ env.WASM_MODULE_NAME }}_bg.wasm pkg/${{ env.WASM_MODULE_NAME }}.wasm
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: artifacts--rust
+          path: ${{ env.WASM_SOURCES_PATH }}/Rust/pkg/${{ env.WASM_MODULE_NAME }}.wasm
+
+  build_wasm_artifacts--cpp:
+    runs-on: ubuntu-latest
+    env:
+      EM_VERSION: 3.1.44
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Get 'emscripten-sdk' from cache ...
+        uses: actions/cache@v3
+        id: cache-emscripten-sdk
+        with:
+          path: emsdk/
+          key: emscripten-sdk-${{ env.EM_VERSION }}${{ runner.os }}-wasm-pack
+
+      - name: ... or install and cache 'emscripten-sdk'
+        if: ${{ steps.cache-emscripten-sdk.outputs.cache-hit != 'true' }}
+        run: |
+          git clone https://github.com/emscripten-core/emsdk.git
+          cd emsdk
+          ./emsdk install ${{ env.EM_VERSION }}
+          ./emsdk activate ${{ env.EM_VERSION }}
+
+      - run: |
+          source ./emsdk/emsdk_env.sh
+          cd ${{ env.WASM_SOURCES_PATH }}/C++
+          em++ -std=c++11 ${{ env.WASM_MODULE_NAME }}.cpp  -Os -s WASM=1 -s SIDE_MODULE=1 -o ${{ env.WASM_MODULE_NAME }}.wasm
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: artifacts--cpp
+          path: ${{ env.WASM_SOURCES_PATH }}/C++/${{ env.WASM_MODULE_NAME }}.wasm
+
+  build_wasm_artifacts--as:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Get AssemblyScript deps from cache ...
+        id: cache-deps
+        uses: actions/cache@v3
+        with:
+          path: |
+            ${{ env.WASM_SOURCES_PATH }}/AssemblyScript/node_modules/
+          key: AssemblyScript-node_modules-${{ hashFiles(format('{0}/AssemblyScript/package-lock.json', env.WASM_SOURCES_PATH)) }}
+
+      - name: ... or install and cache AssemblyScript deps
+        if: ${{ steps.cache-deps.outputs.cache-hit != 'true' }}
+        run: |
+          cd ${{ env.WASM_SOURCES_PATH }}/AssemblyScript
+          npm i
+
+      - run: |
+          cd ${{ env.WASM_SOURCES_PATH }}/AssemblyScript
+          npx asc ${{ env.WASM_MODULE_NAME }}.ts --outFile ${{ env.WASM_MODULE_NAME }}.wasm --optimize
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: artifacts--as
+          path: ${{ env.WASM_SOURCES_PATH }}/AssemblyScript/${{ env.WASM_MODULE_NAME }}.wasm
+
+  build_wasm_artifacts--wat:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Get 'wabt' tools from cache ...
+        uses: actions/cache@v3
+        id: cache-wabt-tools
+        with:
+          path: wabt/
+          key: wabt-${{ runner.os }}
+
+      - name: ... or install and cache 'wabt' tools
+        if: ${{ steps.cache-wabt-tools.outputs.cache-hit != 'true' }}
+        run: |
+          git clone --recursive https://github.com/WebAssembly/wabt
+          mkdir wabt/build && cd wabt/build
+          cmake .. && cmake --build .
+
+      - run: |
+          cd ${{ env.WASM_SOURCES_PATH }}/WAT
+          $GITHUB_WORKSPACE/wabt/bin/wat2wasm ${{ env.WASM_MODULE_NAME }}.wat -o ${{ env.WASM_MODULE_NAME }}.wasm
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: artifacts--wat
+          path: ${{ env.WASM_SOURCES_PATH }}/WAT/${{ env.WASM_MODULE_NAME }}.wasm
+
+  build_wasm_artifacts--zig:
+    runs-on: ubuntu-latest
+    env:
+      ZIG_VERSION: 0.11.0
+      ZIG_FOR_OS: linux
+      ZIG_FOR_ARCH: x86_64
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Get Zig compiler from cache ...
+        uses: actions/cache@v3
+        id: cache-zig-compiler
+        with:
+          path: zig/
+          key: zig-v${{ env.ZIG_VERSION }}-${{ runner.os }}
+
+      - name: ... or download and cache Zig compiler
+        if: ${{ steps.cache-zig-compiler.outputs.cache-hit != 'true' }}
+        run: |
+          BUNDLE_NAME=zig-${{ env.ZIG_FOR_OS}}-${{ env.ZIG_FOR_ARCH }}-${{ env.ZIG_VERSION }}
+          wget https://ziglang.org/download/${{ env.ZIG_VERSION }}/$BUNDLE_NAME.tar.xz
+          tar -xf $BUNDLE_NAME.tar.xz && mv $BUNDLE_NAME zig && rm $BUNDLE_NAME.tar.xz
+
+      - run: |
+          cd ${{ env.WASM_SOURCES_PATH }}/Zig
+          $GITHUB_WORKSPACE/zig/zig build-lib ${{ env.WASM_MODULE_NAME }}.zig -target wasm32-freestanding -dynamic -rdynamic
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: artifacts--zig
+          path: ${{ env.WASM_SOURCES_PATH }}/Zig/${{ env.WASM_MODULE_NAME }}.wasm
+
+  lint_and_test:
+    needs:
+      - build_wasm_artifacts--rust
+      - build_wasm_artifacts--cpp
+      - build_wasm_artifacts--as
+      - build_wasm_artifacts--wat
+      - build_wasm_artifacts--zig
+
     runs-on: ${{ matrix.os }}
 
     strategy:
       matrix:
         node:
-          - 16
           - 18
-          - 19
           - 20
         os:
           - ubuntu-latest
@@ -19,12 +182,38 @@ jobs:
           - macos-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+
+      - name: Download WASM binaries
+        uses: actions/download-artifact@v3
+
+      - name: Swap commited binaries with CI binaries
+        if: ${{ matrix.os != 'windows-latest' }}
+        run: |
+          rm ${{ env.WASM_BINARIES_PATH}}/*.wasm
+          mv artifacts--rust/${{ env.WASM_MODULE_NAME }}.wasm ${{ env.WASM_BINARIES_PATH}}/rust.wasm
+          mv artifacts--cpp/${{ env.WASM_MODULE_NAME }}.wasm ${{ env.WASM_BINARIES_PATH}}/cpp.wasm
+          mv artifacts--as/${{ env.WASM_MODULE_NAME }}.wasm ${{ env.WASM_BINARIES_PATH}}/as.wasm
+          mv artifacts--wat/${{ env.WASM_MODULE_NAME }}.wasm ${{ env.WASM_BINARIES_PATH}}/wat.wasm
+          mv artifacts--zig/${{ env.WASM_MODULE_NAME }}.wasm ${{ env.WASM_BINARIES_PATH}}/zig.wasm
+          rm -r artifacts--*
+
+      - name: Swap commited binaries with CI binaries (Windows)
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: |
+          Remove-Item -Path ${{ env.WASM_BINARIES_PATH_WIN }}\*.wasm
+          Move-Item -Path artifacts--rust\${{ env.WASM_MODULE_NAME }}.wasm -Destination ${{ env.WASM_BINARIES_PATH_WIN }}\rust.wasm 
+          Move-Item -Path artifacts--cpp\${{ env.WASM_MODULE_NAME }}.wasm -Destination ${{ env.WASM_BINARIES_PATH_WIN }}\cpp.wasm
+          Move-Item -Path artifacts--as\${{ env.WASM_MODULE_NAME }}.wasm -Destination ${{ env.WASM_BINARIES_PATH_WIN }}\as.wasm
+          Move-Item -Path artifacts--wat\${{ env.WASM_MODULE_NAME }}.wasm -Destination ${{ env.WASM_BINARIES_PATH_WIN }}\wat.wasm
+          Move-Item -Path artifacts--zig\${{ env.WASM_MODULE_NAME }}.wasm -Destination ${{ env.WASM_BINARIES_PATH_WIN }}\zig.wasm
+          Remove-Item -Path artifacts--* -Recurse
+
       - name: Use Node.js ${{ matrix.node }}
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         with:
           path: ~/.npm
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}

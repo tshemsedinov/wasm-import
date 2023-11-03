@@ -31,6 +31,10 @@ const example = await load('example.wasm');
 example.instance.exports.add(3, 7, (result) => {
   console.log({ result, expected: 10 });
 });
+
+// Promises supported as well
+const result = await example.instance.exports.add(3, 7);
+console.log({ result, expected: 10 });
 ```
 
 ## License & Contributors

@@ -3,7 +3,9 @@
 ## [Unreleased][unreleased]
 
 - Example and test for Zig
-- Registry class (extended Map) for callbacks;
+- Build wasm for all examples in CI before tests
+- Support promises
+- Registry (extended Map) for callbacks
 
 ## [0.3.0][] - 2023-08-12
 
