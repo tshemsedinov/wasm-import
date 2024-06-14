@@ -6,6 +6,7 @@
 - Build wasm for all examples in CI before tests
 - Support promises
 - Re-use 'loader' logic for client and server
+- Add 'Registry' map for callbacks
 
 ## [0.3.0][] - 2023-08-12
 
