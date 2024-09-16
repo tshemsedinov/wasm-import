@@ -39,5 +39,5 @@ console.log({ result, expected: 10 });
 
 ## License & Contributors
 
-Copyright (c) 2023 [WASM Import contributors](https://github.com/tshemsedinov/wasm-import/graphs/contributors).
+Copyright (c) 2023-2024 [WASM Import contributors](https://github.com/tshemsedinov/wasm-import/graphs/contributors).
 WASM Import is [MIT licensed](./LICENSE).
